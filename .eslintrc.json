@@ -1,0 +1,28 @@
+{
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "extends": "airbnb-base",
+  "rules": {
+    "semi": ["error", "always"],
+    "quotes": ["error", "single", "avoid-escape"],
+    "no-tabs": "off",
+    "indent": ["error", "tab", {
+      "SwitchCase": 1,
+      "VariableDeclarator": 1
+    }],
+    "comma-dangle": ["error", "never"],
+    "no-param-reassign": "off",
+    "max-len": ["error", {
+      "code": 100,
+      "tabWidth": 1,
+      "ignoreUrls": true,
+      "ignoreComments": true,
+      "ignoreTemplateLiterals": true
+    }]
+  }
+}
