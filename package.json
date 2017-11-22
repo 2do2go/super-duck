@@ -1,6 +1,6 @@
 {
   "name": "super-duck",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Yet another extensible redux modules (ducks-modular-redux)",
   "main": "dist/super-duck.js",
   "jsnext:main": "lib/index.js",
