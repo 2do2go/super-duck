@@ -2,7 +2,9 @@
   "name": "super-duck",
   "version": "0.2.0",
   "description": "Yet another extensible redux modules (ducks-modular-redux)",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
+  "jsnext:main": "lib/index.js",
+  "module": "lib/index.js",
   "scripts": {
     "_lint": "eslint --ext js --cache",
     "lint": "npm run _lint -- ./",
