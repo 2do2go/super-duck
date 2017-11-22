@@ -78,14 +78,98 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__extendDuck__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils__ = __webpack_require__(2);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return last; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return identity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return has; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return isObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return isFunction; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return isEqual; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return zip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return joinPath; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return splitPath; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return slice; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return compose; });
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var pathDelimiter = '/';
+
+// return last item from array
+var last = function last(array) {
+	return array[array.length - 1];
+};
+
+// simple identity iterator
+var identity = function identity(value) {
+	return value;
+};
+
+// Object.hasOwnProperty wrapper
+var has = function has(obj, key) {
+	return obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+};
+
+// type checkers
+var isObject = function isObject(obj) {
+	return obj !== null && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object';
+};
+var isFunction = function isFunction(func) {
+	return func !== null && typeof func === 'function';
+};
+
+// compare two arrays
+var isEqual = function isEqual(arr1, arr2) {
+	return arr1.length === arr2.length && !arr1.find(function (item, index) {
+		return item !== arr2[index];
+	});
+};
+
+// create map from two arrays
+var zip = function zip(keys, values) {
+	return values.reduce(function (result, value, index) {
+		result[keys[index]] = value;
+		return result;
+	}, {});
+};
+
+// convert ['a', 'b', 'c'] to 'a/b/c'
+var joinPath = function joinPath(args) {
+	return args.filter(identity).join(pathDelimiter);
+};
+
+// convert 'a/b/c' to ['a', 'b', 'c']
+var splitPath = function splitPath(path) {
+	return path.split(pathDelimiter);
+};
+
+// Array.slice wrapper
+var slice = function slice(array, begin, end) {
+	return Array.prototype.slice.call(array, begin, end);
+};
+
+// compose functions from args to () => a(b(c()))
+var compose = function compose(args) {
+	return slice(args).reverse().reduce(function (result, selector) {
+		return function (state) {
+			return selector(result(state));
+		};
+	}, identity);
+};
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__extendDuck__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils__ = __webpack_require__(0);
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 
 
 
 // create composed selector from path to get values from deep nested objects
-var createDeepSelector = function createDeepSelector(path) {
-	var selectors = Object(__WEBPACK_IMPORTED_MODULE_1__utils__["h" /* splitPath */])(path).reverse().map(function (key) {
+var createDeepSelector = function createDeepSelector(keys) {
+	var selectors = [].concat(_toConsumableArray(keys)).reverse().map(function (key) {
 		return function (state) {
 			return state[key];
 		};
@@ -102,15 +186,15 @@ var createDuck = function createDuck() {
 		throw new Error('"path" option is required');
 	}
 
-	var _options$key = options.key,
-	    key = _options$key === undefined ? Object(__WEBPACK_IMPORTED_MODULE_1__utils__["g" /* last */])(Object(__WEBPACK_IMPORTED_MODULE_1__utils__["h" /* splitPath */])(path)) : _options$key,
+	var _options$pathKeys = options.pathKeys,
+	    pathKeys = _options$pathKeys === undefined ? Object(__WEBPACK_IMPORTED_MODULE_1__utils__["j" /* splitPath */])(path) : _options$pathKeys,
 	    _options$rootSelector = options.rootSelector,
-	    rootSelector = _options$rootSelector === undefined ? createDeepSelector(path) : _options$rootSelector;
+	    rootSelector = _options$rootSelector === undefined ? createDeepSelector(pathKeys) : _options$rootSelector;
 
 
 	return Object(__WEBPACK_IMPORTED_MODULE_0__extendDuck__["a" /* default */])({
 		path: path,
-		key: key,
+		pathKeys: pathKeys,
 		rootSelector: rootSelector,
 		types: {},
 		selectors: {},
@@ -124,11 +208,11 @@ var createDuck = function createDuck() {
 /* harmony default export */ __webpack_exports__["a"] = (createDuck);
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(0);
 
 
 // convert 'camelCase' to 'CAMEL_CASE'
@@ -139,12 +223,12 @@ var normalizeTypeName = function normalizeTypeName(type) {
 
 // normalize type and join with path
 var buildType = function buildType(path, type) {
-	return Object(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* joinPath */])([path, normalizeTypeName(type)]);
+	return Object(__WEBPACK_IMPORTED_MODULE_0__utils__["g" /* joinPath */])([path, normalizeTypeName(type)]);
 };
 
 // convert types array to name-type map
 var buildTypesMap = function buildTypesMap(path, types) {
-	return Object(__WEBPACK_IMPORTED_MODULE_0__utils__["i" /* zip */])(types, types.map(function (type) {
+	return Object(__WEBPACK_IMPORTED_MODULE_0__utils__["k" /* zip */])(types, types.map(function (type) {
 		return buildType(path, type);
 	}));
 };
@@ -154,7 +238,7 @@ var getExtendedObject = function getExtendedObject(proto, props) {
 	return Object.assign(Object.create(proto), props);
 };
 
-var requiredProps = ['path', 'key', 'rootSelector'];
+var requiredProps = ['path', 'pathKeys', 'rootSelector'];
 
 var extendDuck = function extendDuck() {
 	var parent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -166,7 +250,7 @@ var extendDuck = function extendDuck() {
 		}
 	});
 
-	if (!Object(__WEBPACK_IMPORTED_MODULE_0__utils__["e" /* isObject */])(extension)) {
+	if (!Object(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* isObject */])(extension)) {
 		throw new Error('Extension should be an object');
 	}
 
@@ -175,13 +259,13 @@ var extendDuck = function extendDuck() {
 	var duck = {
 		super: parent,
 		path: parent.path,
-		key: parent.key,
+		pathKeys: parent.pathKeys,
 		rootSelector: parent.rootSelector
 	};
 
 	var getExtensionValue = function getExtensionValue(key, fallback) {
 		var value = extension[key] || fallback;
-		if (Object(__WEBPACK_IMPORTED_MODULE_0__utils__["d" /* isFunction */])(value)) {
+		if (Object(__WEBPACK_IMPORTED_MODULE_0__utils__["e" /* isFunction */])(value)) {
 			return value(duck, extension);
 		}
 		return value;
@@ -235,87 +319,33 @@ var extendDuck = function extendDuck() {
 /* harmony default export */ __webpack_exports__["a"] = (extendDuck);
 
 /***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return last; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return identity; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return has; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return isObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return isFunction; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return zip; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return joinPath; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return splitPath; });
-/* unused harmony export slice */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return compose; });
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var pathDelimiter = '/';
-
-// return last item from array
-var last = function last(array) {
-	return array[array.length - 1];
-};
-
-// simple identity iterator
-var identity = function identity(value) {
-	return value;
-};
-
-// Object.hasOwnProperty wrapper
-var has = function has(obj, key) {
-	return obj != null && Object.prototype.hasOwnProperty.call(obj, key);
-};
-
-// type checkers
-var isObject = function isObject(obj) {
-	return obj !== null && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object';
-};
-var isFunction = function isFunction(func) {
-	return func !== null && typeof func === 'function';
-};
-
-// create map from two arrays
-var zip = function zip(keys, values) {
-	return values.reduce(function (result, value, index) {
-		result[keys[index]] = value;
-		return result;
-	}, {});
-};
-
-// convert ['a', 'b', 'c'] to 'a/b/c'
-var joinPath = function joinPath(args) {
-	return args.filter(identity).join(pathDelimiter);
-};
-
-// convert 'a/b/c' to ['a', 'b', 'c']
-var splitPath = function splitPath(path) {
-	return path.split(pathDelimiter);
-};
-
-// Array.slice wrapper
-var slice = function slice(array, begin, end) {
-	return Array.prototype.slice.call(array, begin, end);
-};
-
-// compose functions from args to () => a(b(c()))
-var compose = function compose(args) {
-	return slice(args).reverse().reduce(function (result, selector) {
-		return function (state) {
-			return selector(result(state));
-		};
-	}, identity);
-};
-
-/***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(0);
+
+
 var getDuckReducers = function getDuckReducers(ducks) {
+	if (!ducks.length) return {};
+
+	var firstParentPathKeys = Object(__WEBPACK_IMPORTED_MODULE_0__utils__["i" /* slice */])(ducks[0].pathKeys, 0, -1);
+
 	return ducks.reduce(function (reducers, duck) {
-		reducers[duck.key] = duck.reducer;
+		var parentPathKeys = Object(__WEBPACK_IMPORTED_MODULE_0__utils__["i" /* slice */])(duck.pathKeys, 0, -1);
+
+		if (!Object(__WEBPACK_IMPORTED_MODULE_0__utils__["d" /* isEqual */])(firstParentPathKeys, parentPathKeys)) {
+			throw new Error('Each duck should have path with prefix "' + firstParentPathKeys.join('/') + '"');
+		}
+
+		var key = Object(__WEBPACK_IMPORTED_MODULE_0__utils__["h" /* last */])(duck.pathKeys);
+
+		if (reducers[key]) {
+			throw new Error('Duck with path "' + duck.path + '" already exists');
+		}
+
+		reducers[key] = duck.reducer;
+
 		return reducers;
 	}, {});
 };
@@ -328,9 +358,9 @@ var getDuckReducers = function getDuckReducers(ducks) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__createDuck__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__createDuck__ = __webpack_require__(1);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "createDuck", function() { return __WEBPACK_IMPORTED_MODULE_0__createDuck__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extendDuck__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extendDuck__ = __webpack_require__(2);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "extendDuck", function() { return __WEBPACK_IMPORTED_MODULE_1__extendDuck__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__createCombinedDuck__ = __webpack_require__(5);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "createCombinedDuck", function() { return __WEBPACK_IMPORTED_MODULE_2__createCombinedDuck__["a"]; });
@@ -348,8 +378,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_redux__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_redux___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_redux__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__createDuck__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__getDuckReducers__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__createDuck__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__getDuckReducers__ = __webpack_require__(3);
+
 
 
 
@@ -357,12 +389,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 var createCombinedDuck = function createCombinedDuck(options) {
 	var path = options.path,
-	    ducks = options.ducks;
+	    _options$ducks = options.ducks,
+	    ducks = _options$ducks === undefined ? [] : _options$ducks;
 
 
-	return Object(__WEBPACK_IMPORTED_MODULE_1__createDuck__["a" /* default */])({
+	return Object(__WEBPACK_IMPORTED_MODULE_2__createDuck__["a" /* default */])({
 		path: path,
-		reducer: Object(__WEBPACK_IMPORTED_MODULE_0_redux__["combineReducers"])(Object(__WEBPACK_IMPORTED_MODULE_2__getDuckReducers__["a" /* default */])(ducks))
+		createReducer: function createReducer(combinedDuck) {
+			ducks.forEach(function (duck) {
+				var duckParentPathKeys = Object(__WEBPACK_IMPORTED_MODULE_1__utils__["i" /* slice */])(duck.pathKeys, 0, -1);
+
+				if (!Object(__WEBPACK_IMPORTED_MODULE_1__utils__["d" /* isEqual */])(combinedDuck.pathKeys, duckParentPathKeys)) {
+					throw new Error('Each duck should have path with prefix "' + path + '"');
+				}
+			});
+
+			return Object(__WEBPACK_IMPORTED_MODULE_0_redux__["combineReducers"])(Object(__WEBPACK_IMPORTED_MODULE_3__getDuckReducers__["a" /* default */])(ducks));
+		}
 	});
 };
 
